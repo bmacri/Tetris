@@ -179,9 +179,16 @@ class Tetris():
 		for line in new:
 			print line
 		#Assign to self.board
+		obstacle_hit = False
 		for new_row in range(3):
-			for new_column in range(3): #place new onto self.board
-				self.board[top+new_row][left+new_column] = new[new_row][new_column]
+			for new_column in range(3):
+				if new[new_row][new_column][0] == 'active' and self.board[new_row+top][new_column+left][0] == 'obstacle':
+					obstacle_hit = True
+		if not obstacle_hit:
+			for new_row in range(3):
+				for new_column in range(3): #place new onto self.board
+					if new[new_row][new_column][0] != 'obstacle':
+						self.board[top+new_row][left+new_column] = new[new_row][new_column]
 
 
 		
