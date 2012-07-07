@@ -238,7 +238,7 @@ class Tetris():
 			return False
 
 	def generate_piece(self):
-		random_seed = random.randint(1,1)
+		random_seed = random.randint(1,7)
 		if random_seed == 1: #build line
 			self.board[0][6] = ['active','line','']
 			self.board[1][6] = ['active','line','vertical']
@@ -330,7 +330,7 @@ while True:
 		points = points + board.score(lines_dropped)
 		print points
 	frames += 1	
-	if frames % 50 == 0:
+	if frames % 100 == 0:
 		board.piece_fall()
 		#pdb.set_trace()
 	for event in pygame.event.get():
