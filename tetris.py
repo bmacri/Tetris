@@ -103,7 +103,7 @@ class Tetris():
 
 						
 
-	def user_input(self, event):
+	def user_input(self, event, piece):
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_RIGHT:
 				self.move_right()
@@ -111,6 +111,8 @@ class Tetris():
 				self.move_left()
 			elif event.key == pygame.K_DOWN:
 				self.piece_fall()
+			elif event.key == pygame.K_UP:
+				self.rotate(piece)
 
 	def move_left(self):
 		obstacle_hit = False
@@ -144,7 +146,50 @@ class Tetris():
 					if state == 'active':
 						self.board[row][column] = ['','',''] #reset cell you're moving away from
 						self.board[row][column+1] = [state,piece_type,pivot_state]
+	def rotate(self, piece_type):
+		if piece_type == 'line':
+			pass #come back later and fix this
+		elif piece_type == 'box':
+			pass #rotating box does nothing
+		else: #other five piece types
+			pivot_row, pivot_col = self.find_pivot()
+			self.rotate_grid(pivot_row, pivot_col)
+
+	def find_pivot(self):
+		for row in range(23):
+			for column in range(12):
+				state, piece_type, pivot_state = self.board[row][column] #unpack list into elements
+				if state == 'active' and pivot_state == 'pivot':
+					return row, column
 	
+	def rotate_grid(self, pivot_row, pivot_col):
+		top, bottom = pivot_row -1, pivot_row +1
+		left, right = pivot_col -1, pivot_col +1
+		new = [[0 for i in range(3)] for j in range(3)] #initializes 3x3 grid
+		#MAPPING
+		new[0][0] = self.board[bottom][left]		
+		new[0][1] = self.board[pivot_row][left]		
+		new[0][2] = self.board[top][left]
+		new[1][0] = self.board[bottom][pivot_col]
+		new[1][1] = self.board[pivot_row][pivot_col]	
+		new[1][2] = self.board[top][pivot_col]
+		new[2][0] = self.board[bottom][right]
+		new[2][1] = self.board[pivot_row][right]
+		new[2][2] = self.board[top][right]
+		for line in new:
+			print line
+		#Assign to self.board
+		for new_row in range(3):
+			for new_column in range(3): #place new onto self.board
+				self.board[top+new_row][left+new_column] = new[new_row][new_column]
+
+
+		
+
+
+		
+
+
 	def piece_is_active(self):  #returns True if any active cells on the board
 		for row in range(23):
 			for column in range(12):
@@ -190,6 +235,7 @@ class Tetris():
 			self.board[3][7] = ['active','Z','']
 			self.board[2][5] = ['active','Z','']
 			self.board[2][6] = ['active','Z','']
+		return self.board[3][6][1] #returns piece type
 
 	def line_drop(self):
 		newline = [['obstacle','',''],['','',''],['','',''],['','',''],['','',''],['','',''],['','',''],['','',''],['','',''],['','',''],['','',''],['obstacle','','']]
@@ -238,7 +284,7 @@ points = 0
 
 while True:
 	if not board.piece_is_active() and not board.you_lose():
-		board.generate_piece()
+		piece = board.generate_piece()
 	board.draw_board()
 	lines_dropped = board.line_drop()
 	if lines_dropped > 0:
@@ -249,7 +295,7 @@ while True:
 		board.piece_fall()
 		#pdb.set_trace()
 	for event in pygame.event.get():
-		board.user_input(event)
+		board.user_input(event, piece)
 		#print event.type, event 
 		if event.type == QUIT:
 			pygame.quit()
